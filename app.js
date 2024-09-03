@@ -1,65 +1,47 @@
-let bleDevice;
-let keyboardCharacteristic;
+let bluetoothDevice;
+let keyCharacteristic;
 
-const SERVICE_UUID = '180F'; // Custom service UUID, replace with your actual UUID
-const CHARACTERISTIC_UUID = '2A19'; // Custom characteristic UUID, replace with your actual UUID
-
-// Connect to the Nano 33 IoT
-document.getElementById('connectButton').addEventListener('click', async () => {
+document.getElementById('connect').addEventListener('click', async () => {
     try {
-        bleDevice = await navigator.bluetooth.requestDevice({
-            filters: [{ services: [SERVICE_UUID] }]
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: ['19b10000-e8f2-537e-4f6c-d104768a1214'] }]
         });
 
-        const server = await bleDevice.gatt.connect();
-        const service = await server.getPrimaryService(SERVICE_UUID);
-        keyboardCharacteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+        const server = await bluetoothDevice.gatt.connect();
+        const service = await server.getPrimaryService('19b10000-e8f2-537e-4f6c-d104768a1214');
+        keyCharacteristic = await service.getCharacteristic('19b10001-e8f2-537e-4f6c-d104768a1214');
 
-        alert('Connected to Nano 33 IoT!');
+        console.log('Connected to Arduino');
     } catch (error) {
-        console.error('Bluetooth connection failed!', error);
-        alert('Failed to connect to Bluetooth device.');
+        console.error('Connection failed', error);
     }
 });
 
-// Handle keyboard input
-document.getElementById('keyboardInput').addEventListener('input', async (event) => {
-    const text = event.target.value;
-    if (keyboardCharacteristic) {
-        for (const char of text) {
-            await sendKeyboardCommand(char);
+document.getElementById('leftClick').addEventListener('click', () => {
+    sendCommand('left_click');
+});
+
+document.getElementById('rightClick').addEventListener('click', () => {
+    sendCommand('right_click');
+});
+
+document.getElementById('keyboardInput').addEventListener('input', (event) => {
+    const inputValue = event.target.value;
+    if (inputValue) {
+        sendCommand('key_' + inputValue);
+        event.target.value = ''; // Clear input after sending
+    }
+});
+
+async function sendCommand(command) {
+    if (keyCharacteristic) {
+        try {
+            await keyCharacteristic.writeValue(new TextEncoder().encode(command));
+            console.log(`Command sent: ${command}`);
+        } catch (error) {
+            console.error('Error sending command', error);
         }
-    }
-    event.target.value = ''; // Clear input after sending
-});
-
-// Send keyboard command to Nano 33 IoT
-async function sendKeyboardCommand(character) {
-    try {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(character);
-        await keyboardCharacteristic.writeValue(data);
-        console.log('Sent key:', character);
-    } catch (error) {
-        console.error('Error sending keyboard command:', error);
-    }
-}
-
-// Send mouse commands
-async function sendMouseCommand(direction) {
-    try {
-        const commands = {
-            'UP': 'MOUSE_UP',
-            'DOWN': 'MOUSE_DOWN',
-            'LEFT': 'MOUSE_LEFT',
-            'RIGHT': 'MOUSE_RIGHT'
-        };
-        const command = commands[direction];
-        const encoder = new TextEncoder();
-        const data = encoder.encode(command);
-        await keyboardCharacteristic.writeValue(data);
-        console.log('Sent mouse command:', direction);
-    } catch (error) {
-        console.error('Error sending mouse command:', error);
+    } else {
+        console.error('No characteristic found. Please connect first.');
     }
 }
