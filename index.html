@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluetooth Keyboard & Mouse Controller</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f4f4f4; 
+            text-align: center;
+        }
+        .btn { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            background-color: #007BFF; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .controls { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            padding: 10px; 
+            width: 300px; 
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bluetooth Keyboard & Mouse Controller</h1>
+    
+    <button id="connectButton" class="btn">Connect to Nano 33 IoT</button>
+    <div class="controls">
+        <h3>Keyboard Input</h3>
+        <input type="text" id="keyboardInput" placeholder="Type here..." />
+
+        <h3>Mouse Control</h3>
+        <button class="btn" onclick="sendMouseCommand('UP')">Move Up</button>
+        <button class="btn" onclick="sendMouseCommand('DOWN')">Move Down</button>
+        <button class="btn" onclick="sendMouseCommand('LEFT')">Move Left</button>
+        <button class="btn" onclick="sendMouseCommand('RIGHT')">Move Right</button>
+    </div>
+    
+    <!-- Include JavaScript file -->
+    <script src="app.js"></script>
+</body>
+</html>
